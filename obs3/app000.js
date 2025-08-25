@@ -94,3 +94,10 @@ function checkout() {
 // Initial render of books
 renderBooks();
 
+fetch('http://127.0.0.1:5000/your-endpoint')
+  .then(response => response.json())
+  .then(data => {
+    console.log(data);
+  })
+  .catch(error => console.error('Error:', error));
+
