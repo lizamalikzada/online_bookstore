@@ -1,10 +1,10 @@
-fetch('http://127.0.0.1:5000/your-endpoint')
+fetch('http://127.0.0.1:5000/books')
   .then(response => response.json())
   .then(data => {
     console.log(data);
-    // You can add code here to render the data on your frontend
   })
   .catch(error => console.error('Error:', error));
+
 
 let books = [
   { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
