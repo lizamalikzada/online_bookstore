@@ -7,6 +7,21 @@ fetch("http://127.0.0.1:5000/books")
   })
   .catch(err => console.error("Error:", err));
 
+ // 2. Function to add new book
+function addBook(title, author, price) {
+  fetch("http://127.0.0.1:5000/books", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, author, price })
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log(data.message);
+  });
+}
+
+// (3. Later, you can call addBook("Book Title", "Author", 20.5) when a form is submitted)
+
 let books = [
   { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
   { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
