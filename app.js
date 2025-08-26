@@ -8,12 +8,11 @@ async function fetchBooks() {
     books = await res.json();
     renderBooks();
   } catch (err) {
-    console.error('Failed to fetch books:', err);
-    alert('Could not load books from backend.');
+    console.error('Error fetching books:', err);
   }
 }
 
-// Add a new book (local only, does not update backend)
+// Add a new book (this will only add to frontend; backend POST can be added later)
 function addBook() {
   const title = document.getElementById('bookTitle').value.trim();
   const author = document.getElementById('bookAuthor').value.trim();
@@ -96,8 +95,5 @@ function checkout() {
   renderCart();
 }
 
-// Search filter trigger
-document.getElementById('searchInput').addEventListener('input', renderBooks);
-
-// Initial fetch & render
+// Initial fetch and render of books
 fetchBooks();
