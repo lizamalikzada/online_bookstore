@@ -1,34 +1,20 @@
+let books = [];
 let cart = [];
 
-// Fetch books from backend and render
-async function renderBooks() {
-  const tbody = document.getElementById('bookList');
-  tbody.innerHTML = '';
-  const search = document.getElementById('searchInput').value.toLowerCase();
-
+// Fetch books from backend
+async function fetchBooks() {
   try {
-    const response = await fetch('https://online-bookstore-backend-hdd7.onrender.com/books');
-    const books = await response.json();
-
-    books
-      .filter(b => b.title.toLowerCase().includes(search))
-      .forEach(book => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${book.title}</td>
-          <td>${book.author}</td>
-          <td>$${book.price.toFixed(2)}</td>
-          <td><button onclick="addToCart(${book.id})">Add to Cart</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-  } catch (error) {
-    console.error('Error fetching books:', error);
+    const res = await fetch('https://online-bookstore-backend-hdd7.onrender.com/books');
+    books = await res.json();
+    renderBooks();
+  } catch (err) {
+    console.error('Failed to fetch books:', err);
+    alert('Could not load books from backend.');
   }
 }
 
-// Add a new book to backend
-async function addBook() {
+// Add a new book (local only, does not update backend)
+function addBook() {
   const title = document.getElementById('bookTitle').value.trim();
   const author = document.getElementById('bookAuthor').value.trim();
   const price = parseFloat(document.getElementById('bookPrice').value);
@@ -38,41 +24,42 @@ async function addBook() {
     return;
   }
 
-  try {
-    const response = await fetch('https://online-bookstore-backend-hdd7.onrender.com/books', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, author, price })
-    });
-
-    const result = await response.json();
-    if (result.success) {
-      alert(result.message);
-      renderBooks(); // refresh book list
-    } else {
-      alert('Failed to add book.');
-    }
-  } catch (error) {
-    console.error('Error adding book:', error);
-  }
-
+  books.push({ id: Date.now(), title, author, price });
   document.getElementById('bookTitle').value = '';
   document.getElementById('bookAuthor').value = '';
   document.getElementById('bookPrice').value = '';
+  renderBooks();
 }
 
-// Cart functions (no changes)
+// Render book list with search filter
+function renderBooks() {
+  const tbody = document.getElementById('bookList');
+  tbody.innerHTML = '';
+  const search = document.getElementById('searchInput').value.toLowerCase();
+
+  books
+    .filter(b => b.title.toLowerCase().includes(search))
+    .forEach(book => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${book.title}</td>
+        <td>${book.author}</td>
+        <td>$${book.price.toFixed(2)}</td>
+        <td><button onclick="addToCart(${book.id})">Add to Cart</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+}
+
+// Add book to cart
 function addToCart(bookId) {
-  // fetch book details from backend first
-  fetch(`https://online-bookstore-backend-hdd7.onrender.com/books/${bookId}`)
-    .then(res => res.json())
-    .then(book => {
-      cart.push(book);
-      renderCart();
-    })
-    .catch(err => console.error(err));
+  const book = books.find(b => b.id === bookId);
+  if (!book) return;
+  cart.push(book);
+  renderCart();
 }
 
+// Render shopping cart
 function renderCart() {
   const tbody = document.getElementById('cartList');
   tbody.innerHTML = '';
@@ -92,11 +79,13 @@ function renderCart() {
   document.getElementById('totalPrice').textContent = total.toFixed(2);
 }
 
+// Remove item from cart
 function removeFromCart(index) {
   cart.splice(index, 1);
   renderCart();
 }
 
+// Checkout
 function checkout() {
   if (cart.length === 0) {
     alert('Cart is empty!');
@@ -107,5 +96,8 @@ function checkout() {
   renderCart();
 }
 
-// Initial render
-renderBooks();
+// Search filter trigger
+document.getElementById('searchInput').addEventListener('input', renderBooks);
+
+// Initial fetch & render
+fetchBooks();
