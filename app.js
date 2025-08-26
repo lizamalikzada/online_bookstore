@@ -1,15 +1,34 @@
-let books = [
-  { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
-  { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
-  { id: 3, title: 'Clean Code', author: 'Robert C. Martin', price: 25 },
-  { id: 4, title: 'Atomic Habits', author: 'James Clear', price: 12 },
-  { id: 5, title: 'The Hobbit', author: 'J.R.R. Tolkien', price: 18 }
-];
-
 let cart = [];
 
-// Add a new book
-function addBook() {
+// Fetch books from backend and render
+async function renderBooks() {
+  const tbody = document.getElementById('bookList');
+  tbody.innerHTML = '';
+  const search = document.getElementById('searchInput').value.toLowerCase();
+
+  try {
+    const response = await fetch('https://online-bookstore-backend-hdd7.onrender.com/books');
+    const books = await response.json();
+
+    books
+      .filter(b => b.title.toLowerCase().includes(search))
+      .forEach(book => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${book.title}</td>
+          <td>${book.author}</td>
+          <td>$${book.price.toFixed(2)}</td>
+          <td><button onclick="addToCart(${book.id})">Add to Cart</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+}
+
+// Add a new book to backend
+async function addBook() {
   const title = document.getElementById('bookTitle').value.trim();
   const author = document.getElementById('bookAuthor').value.trim();
   const price = parseFloat(document.getElementById('bookPrice').value);
@@ -19,42 +38,41 @@ function addBook() {
     return;
   }
 
-  books.push({ id: Date.now(), title, author, price });
+  try {
+    const response = await fetch('https://online-bookstore-backend-hdd7.onrender.com/books', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, author, price })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert(result.message);
+      renderBooks(); // refresh book list
+    } else {
+      alert('Failed to add book.');
+    }
+  } catch (error) {
+    console.error('Error adding book:', error);
+  }
+
   document.getElementById('bookTitle').value = '';
   document.getElementById('bookAuthor').value = '';
   document.getElementById('bookPrice').value = '';
-  renderBooks();
 }
 
-// Render book list with search filter
-function renderBooks() {
-  const tbody = document.getElementById('bookList');
-  tbody.innerHTML = '';
-  const search = document.getElementById('searchInput').value.toLowerCase();
-
-  books
-    .filter(b => b.title.toLowerCase().includes(search))
-    .forEach(book => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${book.title}</td>
-        <td>${book.author}</td>
-        <td>$${book.price.toFixed(2)}</td>
-        <td><button onclick="addToCart(${book.id})">Add to Cart</button></td>
-      `;
-      tbody.appendChild(tr);
-    });
-}
-
-// Add book to cart
+// Cart functions (no changes)
 function addToCart(bookId) {
-  const book = books.find(b => b.id === bookId);
-  if (!book) return;
-  cart.push(book);
-  renderCart();
+  // fetch book details from backend first
+  fetch(`https://online-bookstore-backend-hdd7.onrender.com/books/${bookId}`)
+    .then(res => res.json())
+    .then(book => {
+      cart.push(book);
+      renderCart();
+    })
+    .catch(err => console.error(err));
 }
 
-// Render shopping cart
 function renderCart() {
   const tbody = document.getElementById('cartList');
   tbody.innerHTML = '';
@@ -74,13 +92,11 @@ function renderCart() {
   document.getElementById('totalPrice').textContent = total.toFixed(2);
 }
 
-// Remove item from cart
 function removeFromCart(index) {
   cart.splice(index, 1);
   renderCart();
 }
 
-// Checkout
 function checkout() {
   if (cart.length === 0) {
     alert('Cart is empty!');
@@ -91,6 +107,5 @@ function checkout() {
   renderCart();
 }
 
-// Initial render of books
+// Initial render
 renderBooks();
-
