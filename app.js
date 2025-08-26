@@ -1,3 +1,12 @@
+// Example: Fetch books from backend
+fetch("http://127.0.0.1:5000/books")
+  .then(response => response.json())
+  .then(data => {
+    console.log("Books from backend:", data);
+    // you can display them in your HTML here
+  })
+  .catch(err => console.error("Error:", err));
+
 let books = [
   { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
   { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
