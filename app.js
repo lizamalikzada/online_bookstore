@@ -1,14 +1,19 @@
-// Example: Fetch books from backend
+// 1. Fetch books from backend
 fetch("http://127.0.0.1:5000/books")
   .then(response => response.json())
   .then(data => {
     console.log("Books from backend:", data);
-    // you can display them in your HTML here
+    // Replace local books array with backend data
+    books = data;
+    renderBooks();
   })
   .catch(err => console.error("Error:", err));
 
- // 2. Function to add new book
-function addBook(title, author, price) {
+let books = [];
+let cart = [];
+
+// 2. Function to add new book (connects to backend)
+function addBookToBackend(title, author, price) {
   fetch("http://127.0.0.1:5000/books", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -17,23 +22,19 @@ function addBook(title, author, price) {
   .then(res => res.json())
   .then(data => {
     console.log(data.message);
-  });
+    // Refresh books from backend after adding
+    return fetch("http://127.0.0.1:5000/books");
+  })
+  .then(res => res.json())
+  .then(data => {
+    books = data;
+    renderBooks();
+  })
+  .catch(err => console.error("Error:", err));
 }
 
-// (3. Later, you can call addBook("Book Title", "Author", 20.5) when a form is submitted)
-
-let books = [
-  { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
-  { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
-  { id: 3, title: 'Clean Code', author: 'Robert C. Martin', price: 25 },
-  { id: 4, title: 'Atomic Habits', author: 'James Clear', price: 12 },
-  { id: 5, title: 'The Hobbit', author: 'J.R.R. Tolkien', price: 18 }
-];
-
-let cart = [];
-
-// Add a new book
-function addBook() {
+// 3. Handle form submission
+function handleAddBookForm() {
   const title = document.getElementById('bookTitle').value.trim();
   const author = document.getElementById('bookAuthor').value.trim();
   const price = parseFloat(document.getElementById('bookPrice').value);
@@ -43,14 +44,15 @@ function addBook() {
     return;
   }
 
-  books.push({ id: Date.now(), title, author, price });
+  addBookToBackend(title, author, price);
+
+  // Clear form
   document.getElementById('bookTitle').value = '';
   document.getElementById('bookAuthor').value = '';
   document.getElementById('bookPrice').value = '';
-  renderBooks();
 }
 
-// Render book list with search filter
+// --------- Book rendering + cart --------- //
 function renderBooks() {
   const tbody = document.getElementById('bookList');
   tbody.innerHTML = '';
@@ -70,7 +72,6 @@ function renderBooks() {
     });
 }
 
-// Add book to cart
 function addToCart(bookId) {
   const book = books.find(b => b.id === bookId);
   if (!book) return;
@@ -78,7 +79,6 @@ function addToCart(bookId) {
   renderCart();
 }
 
-// Render shopping cart
 function renderCart() {
   const tbody = document.getElementById('cartList');
   tbody.innerHTML = '';
@@ -98,13 +98,11 @@ function renderCart() {
   document.getElementById('totalPrice').textContent = total.toFixed(2);
 }
 
-// Remove item from cart
 function removeFromCart(index) {
   cart.splice(index, 1);
   renderCart();
 }
 
-// Checkout
 function checkout() {
   if (cart.length === 0) {
     alert('Cart is empty!');
@@ -115,6 +113,6 @@ function checkout() {
   renderCart();
 }
 
-// Initial render of books
-renderBooks();
+  
+
 
