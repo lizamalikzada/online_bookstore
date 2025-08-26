@@ -1,3 +1,35 @@
+const API_URL = "http://127.0.0.1:5000";
+
+// Fetch and display books
+async function fetchBooks() {
+    const res = await fetch(`${API_URL}/books`);
+    const books = await res.json();
+    const list = document.getElementById("book-list");
+    list.innerHTML = "";
+    books.forEach(book => {
+        const li = document.createElement("li");
+        li.textContent = `${book.title} by ${book.author} - $${book.price}`;
+        const btn = document.createElement("button");
+        btn.textContent = "Add to Cart";
+        btn.onclick = () => addToCart(book);
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
+}
+
+// Fetch cart
+async function fetchCart() {
+    const res = await fetch(`${API_URL}/cart`);
+    const cart = await res.json();
+    const list = document.getElementById("cart-list");
+    list.innerHTML = "";
+    cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.title} - $${item.price}`;
+        list.appendChild(li);
+    });
+}
+
 let books = [
   { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
   { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
