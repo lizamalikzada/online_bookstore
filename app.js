@@ -1,35 +1,25 @@
-const backendURL = 'https://online-bookstore-backend-hdd7.onrender.com';
+// ----- BOOK DATA -----
+let books = [
+    { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
+    { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
+    { id: 3, title: 'Clean Code', author: 'Robert C. Martin', price: 25 },
+    { id: 4, title: 'Atomic Habits', author: 'James Clear', price: 12 },
+    { id: 5, title: 'The Hobbit', author: 'J.R.R. Tolkien', price: 18 },
+    { id: 6, title: '1984', author: 'George Orwell', price: 14 },
+    { id: 7, title: 'To Kill a Mockingbird', author: 'Harper Lee', price: 16 },
+    { id: 8, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 13 },
+    { id: 9, title: 'Sapiens', author: 'Yuval Noah Harari', price: 20 },
+    { id: 10, title: 'The Catcher in the Rye', author: 'J.D. Salinger', price: 11 },
+    { id: 11, title: 'The Lord of the Rings', author: 'J.R.R. Tolkien', price: 22 },
+    { id: 12, title: 'The Pragmatic Programmer', author: 'Andrew Hunt', price: 28 },
+    { id: 13, title: 'Deep Work', author: 'Cal Newport', price: 18 },
+    { id: 14, title: 'Thinking, Fast and Slow', author: 'Daniel Kahneman', price: 19 },
+    { id: 15, title: 'Meditations', author: 'Marcus Aurelius', price: 9 }
+];
 
-let books = []; // Will fetch from backend
 let cart = [];
 
-// Fetch books from backend
-async function fetchBooks() {
-    try {
-        const res = await fetch(`${backendURL}/books`);
-        if (!res.ok) throw new Error('Failed to fetch books');
-        books = await res.json();
-        renderBooks();
-    } catch (err) {
-        console.error(err);
-        // fallback sample books if backend fails
-        books = [
-            { id: 1, title: 'The Alchemist', author: 'Paulo Coelho', price: 10 },
-            { id: 2, title: 'Harry Potter', author: 'J.K. Rowling', price: 15 },
-            { id: 3, title: 'Clean Code', author: 'Robert C. Martin', price: 25 },
-            { id: 4, title: 'Atomic Habits', author: 'James Clear', price: 12 },
-            { id: 5, title: 'The Hobbit', author: 'J.R.R. Tolkien', price: 18 },
-            { id: 6, title: '1984', author: 'George Orwell', price: 14 },
-            { id: 7, title: 'To Kill a Mockingbird', author: 'Harper Lee', price: 16 },
-            { id: 8, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', price: 13 },
-            { id: 9, title: 'Sapiens', author: 'Yuval Noah Harari', price: 20 },
-            { id: 10, title: 'The Catcher in the Rye', author: 'J.D. Salinger', price: 11 }
-        ];
-        renderBooks();
-    }
-}
-
-// Add a new book
+// ----- ADD NEW BOOK -----
 function addBook() {
     const title = document.getElementById('bookTitle').value.trim();
     const author = document.getElementById('bookAuthor').value.trim();
@@ -47,7 +37,7 @@ function addBook() {
     renderBooks();
 }
 
-// Render book list with search
+// ----- RENDER BOOK LIST -----
 function renderBooks() {
     const tbody = document.getElementById('bookList');
     tbody.innerHTML = '';
@@ -67,7 +57,7 @@ function renderBooks() {
         });
 }
 
-// Add book to cart
+// ----- ADD TO CART -----
 function addToCart(bookId) {
     const book = books.find(b => b.id === bookId);
     if (!book) return;
@@ -75,7 +65,7 @@ function addToCart(bookId) {
     renderCart();
 }
 
-// Render shopping cart
+// ----- RENDER CART -----
 function renderCart() {
     const tbody = document.getElementById('cartList');
     tbody.innerHTML = '';
@@ -95,13 +85,13 @@ function renderCart() {
     document.getElementById('totalPrice').textContent = total.toFixed(2);
 }
 
-// Remove from cart
+// ----- REMOVE FROM CART -----
 function removeFromCart(index) {
     cart.splice(index, 1);
     renderCart();
 }
 
-// Checkout
+// ----- CHECKOUT -----
 function checkout() {
     if (cart.length === 0) {
         alert('Cart is empty!');
@@ -112,5 +102,8 @@ function checkout() {
     renderCart();
 }
 
-// Initial fetch and render
-fetchBooks();
+// ----- SEARCH -----
+document.getElementById('searchInput').addEventListener('input', renderBooks);
+
+// ----- INITIAL RENDER -----
+renderBooks();
